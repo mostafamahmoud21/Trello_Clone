@@ -129,4 +129,24 @@ export class AuthService {
 
         return { message: 'Password changed successfully' };
     }
+
+    async googleCallback(googleProfile:any){
+        const { email, firstName, lastName} =googleProfile
+        let user = await this.userRepository.findOne({ where: { email } });
+  if (!user) {
+    user = this.userRepository.create({
+      email,
+      firstName,
+      lastName,
+      isVerified: true, 
+    });
+    await this.userRepository.save(user);
+  }
+  const payload = {
+    id: user.id,
+    email: user.email,
+};
+  const accessToken = this.jwtService.sign(payload);
+  return {Profile:user,accessToken}; 
+    }
 }

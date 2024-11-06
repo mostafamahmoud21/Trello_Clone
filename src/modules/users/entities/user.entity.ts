@@ -15,7 +15,7 @@ export class User {
     @Column({ unique: true })
     email: string;
 
-    @Column()
+    @Column({ nullable: true })
     password: string;
 
     @Column({ default: false })
@@ -23,11 +23,13 @@ export class User {
 
     @Column({ nullable: true })
     verficationCode: number;
-
+ 
     @BeforeInsert()
     async hashPassword() {
-        this.password = await bcrypt.hash(this.password, 10);
-        this.verficationCode = Math.floor(100000 + Math.random() * 900000);
+        if (this.password) {
+            this.password = await bcrypt.hash(this.password, 10);
+            this.verficationCode = Math.floor(100000 + Math.random() * 900000);
+        }
     }
 
     async comparePassword(password: string) {

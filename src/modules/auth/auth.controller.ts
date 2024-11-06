@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto, VerifyEmailDto } from './dto/register.dto';
 import { CheckIfUserExit } from './guards/check-if-user-exit';
@@ -7,6 +7,7 @@ import { ChangePasswordDto, ForgotPasswordDto, ResetPasswordDto } from './dto/pa
 import { Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from './types/express';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -44,5 +45,18 @@ export class AuthController {
     const userId= (req.user as User).id;
     console.log(userId)
     return this.authService.changePassword(userId,body)
+  }
+
+  @Get('google/login')
+  @UseGuards(AuthGuard('google'))
+  googleLogin(){
+    return 'login'
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleCallback(@Req() req:Request){
+    const googleProfile=req.user
+    return this.authService.googleCallback(googleProfile)
   }
 }
