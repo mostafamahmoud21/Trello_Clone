@@ -1,6 +1,7 @@
 import { Projects } from 'src/modules/projects/entities/project.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, BeforeInsert } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Roles } from 'src/modules/auth/enums/role.enum';
 @Entity()
 export class User {
     @PrimaryGeneratedColumn('uuid')
@@ -18,12 +19,19 @@ export class User {
     @Column({ nullable: true })
     password: string;
 
+    @Column({
+        type: 'enum',
+        enum: Roles,
+        default: Roles.USER,
+    })
+    role: Roles;
+
     @Column({ default: false })
     isVerified: boolean
 
     @Column({ nullable: true })
     verficationCode: number;
- 
+
     @BeforeInsert()
     async hashPassword() {
         if (this.password) {

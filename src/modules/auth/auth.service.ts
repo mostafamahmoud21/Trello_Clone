@@ -8,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail.service'
 import { ChangePasswordDto, ForgotPasswordDto, ResetPasswordDto } from './dto/password.management';
 import * as bcrypt from 'bcrypt'
+import { Roles } from './enums/role.enum';
+Roles
 @Injectable()
 export class AuthService {
     constructor(
@@ -18,7 +20,7 @@ export class AuthService {
 
     async register(body: RegisterDto) {
         try {
-            const user = this.userRepository.create(body);
+            const user = this.userRepository.create({...body,role:Roles.USER});
             const saveUser = await this.userRepository.save(user);
             await this.mailService.sendMail(user.email, 'Email Verification', `Your verification code is: ${user.verficationCode}`);
             const { password, ...userWithoutPassword } = saveUser;
@@ -27,6 +29,17 @@ export class AuthService {
             throw new InternalServerErrorException('Failed to register user');
         }
     }
+
+    async registerManager(body: RegisterDto) {
+        try {
+          const user = this.userRepository.create({ ...body, role: Roles.Manager });
+          const saveUser = await this.userRepository.save(user);
+          await this.mailService.sendMail(user.email, 'Email Verification', `Your verification code is: ${user.verficationCode}`);
+          return { message: 'Manager registered successfully, please check your email for verification' };
+        } catch (error) {
+          throw new InternalServerErrorException('Failed to register manager');
+        }
+      }
 
     async verify(body: VerifyEmailDto) {
         const user = await this.userRepository.findOne({
@@ -66,6 +79,7 @@ export class AuthService {
         const payload = {
             id: user.id,
             email: user.email,
+            role:user.role
         };
 
         const accessToken = this.jwtService.sign(payload);
@@ -124,29 +138,49 @@ export class AuthService {
             throw new UnauthorizedException('Current password is incorrect');
         }
 
-        user.password = await bcrypt.hash(body.newPassword, 10); 
+        user.password = await bcrypt.hash(body.newPassword, 10);
         await this.userRepository.save(user);
 
         return { message: 'Password changed successfully' };
     }
 
-    async googleCallback(googleProfile:any){
-        const { email, firstName, lastName} =googleProfile
+    async googleCallback(googleProfile: any) {
+        const { email, firstName, lastName } = googleProfile
         let user = await this.userRepository.findOne({ where: { email } });
-  if (!user) {
-    user = this.userRepository.create({
-      email,
-      firstName,
-      lastName,
-      isVerified: true, 
-    });
-    await this.userRepository.save(user);
-  }
-  const payload = {
-    id: user.id,
-    email: user.email,
-};
-  const accessToken = this.jwtService.sign(payload);
-  return {Profile:user,accessToken}; 
+        if (!user) {
+            user = this.userRepository.create({
+                email,
+                firstName,
+                lastName,
+                isVerified: true,
+            });
+            await this.userRepository.save(user);
+        }
+        const payload = {
+            id: user.id,
+            email: user.email,
+        };
+        const accessToken = this.jwtService.sign(payload);
+        return { Profile: user, accessToken };
+    }
+
+    async githubCallback(githubProfile: any) {
+        const { email, firstName, lastName } = githubProfile
+        let user = await this.userRepository.findOne({ where: { email } });
+        if (!user) {
+            user = this.userRepository.create({
+                email,
+                firstName,
+                lastName,
+                isVerified: true,
+            });
+            await this.userRepository.save(user);
+        }
+        const payload = {
+            id: user.id,
+            email: user.email,
+        };
+        const accessToken = this.jwtService.sign(payload);
+        return { Profile: user, accessToken };
     }
 }

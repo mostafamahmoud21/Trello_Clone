@@ -59,4 +59,17 @@ export class AuthController {
     const googleProfile=req.user
     return this.authService.googleCallback(googleProfile)
   }
+
+  @Get('github/login')
+  @UseGuards(AuthGuard('github'))  
+  githubLogin() {
+    
+  }
+
+  @Get('github/callback')
+  @UseGuards(AuthGuard('github'))  
+  githubCallback(@Req() req: Request) {
+    const githubProfile=req.user
+    return this.authService.githubCallback(githubProfile)  
+  }
 }
