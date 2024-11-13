@@ -18,58 +18,62 @@ export class AuthController {
   register(@Body() body: RegisterDto) {
     return this.authService.register(body)
   }
-
+  @Post('register-manager')
+  @UseGuards(CheckIfUserExit)
+  registerManager(@Body() body: RegisterDto) {
+    return this.authService.registerManager(body);
+  }
   @Post('verifiy')
-  verify(@Body() body:VerifyEmailDto) {
+  verify(@Body() body: VerifyEmailDto) {
     return this.authService.verify(body)
   }
 
   @Post('login')
-  login(@Body() body: LoginDto) { 
+  login(@Body() body: LoginDto) {
     return this.authService.login(body)
   }
 
   @Post('forget-password')
-  forgetPassword(@Body() body:ForgotPasswordDto){
+  forgetPassword(@Body() body: ForgotPasswordDto) {
     return this.authService.forgetPassword(body)
   }
 
   @Post('reset-password')
-  resetPassword(@Body() body:ResetPasswordDto){
+  resetPassword(@Body() body: ResetPasswordDto) {
     return this.authService.resetPassword(body)
   }
 
   @Post('change-password')
   @UseGuards(JwtAuthGuard)
-  changePassword(@Req() req:Request, @Body() body:ChangePasswordDto){
-    const userId= (req.user as User).id;
+  changePassword(@Req() req: Request, @Body() body: ChangePasswordDto) {
+    const userId = (req.user as User).id;
     console.log(userId)
-    return this.authService.changePassword(userId,body)
+    return this.authService.changePassword(userId, body)
   }
 
   @Get('google/login')
   @UseGuards(AuthGuard('google'))
-  googleLogin(){
+  googleLogin() {
     return 'login'
   }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleCallback(@Req() req:Request){
-    const googleProfile=req.user
+  googleCallback(@Req() req: Request) {
+    const googleProfile = req.user
     return this.authService.googleCallback(googleProfile)
   }
 
   @Get('github/login')
-  @UseGuards(AuthGuard('github'))  
+  @UseGuards(AuthGuard('github'))
   githubLogin() {
-    
+
   }
 
   @Get('github/callback')
-  @UseGuards(AuthGuard('github'))  
+  @UseGuards(AuthGuard('github'))
   githubCallback(@Req() req: Request) {
-    const githubProfile=req.user
-    return this.authService.githubCallback(githubProfile)  
+    const githubProfile = req.user
+    return this.authService.githubCallback(githubProfile)
   }
 }
