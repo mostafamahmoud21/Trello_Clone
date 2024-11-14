@@ -43,7 +43,7 @@ export class ProjectsController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Manager) // Only allow Manager role to delete projects
+  @Role(Roles.Manager) 
   async deleteProject(@Param('id') id: string, @Req() req: Request) {
     const userId = (req.user as User).id;
     return this.projectsService.deleteProject(id, userId);
