@@ -32,6 +32,9 @@ export class User {
     @Column({ nullable: true })
     verficationCode: number;
 
+    @Column({ default: false })
+    isBlocked: boolean
+    
     @BeforeInsert()
     async hashPassword() {
         if (this.password) {

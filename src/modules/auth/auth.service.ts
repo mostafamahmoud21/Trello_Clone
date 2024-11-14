@@ -86,7 +86,7 @@ export class AuthService {
         const { password: _, ...userWithoutPassword } = user;
         return { user: userWithoutPassword, accessToken };
     }
-
+ 
     async forgetPassword(body: ForgotPasswordDto) {
         const user = await this.userRepository.findOne({ where: { email: body.email } });
 
