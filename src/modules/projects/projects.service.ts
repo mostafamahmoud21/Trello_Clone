@@ -80,6 +80,7 @@ export class ProjectsService {
             throw new ForbiddenException('You are not authorized to delete this project');
         }
 
-        return this.projectRepository.remove(project);
+       await this.projectRepository.remove(project);
+        return { message: 'Project deleted successfully' ,project};
     }
 }
