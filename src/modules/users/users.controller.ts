@@ -31,9 +31,24 @@ export class UsersController {
   @Patch()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(Roles.USER, Roles.Manager)
-  updateProfile(@Req() req: Request,@Body() body:UpdateUserDto) {
+  updateProfile(@Req() req: Request, @Body() body: UpdateUserDto) {
     const userId = (req.user as User).id;
-    return this.usersService.updateProfile(userId,body);
+    return this.usersService.updateProfile(userId, body);
+  }
+
+  @Get('count')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Manager)
+  getUserCount(@Req() req: Request) {
+    const userId = (req.user as User).id;
+    return this.usersService.getUserCount(userId);
+  }
+
+  @Get('manager/:managerId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Manager)
+  async getUsersByManager(@Param('managerId') managerId: string) {
+    return this.usersService.getUsersByManager(managerId);
   }
 
 }

@@ -5,11 +5,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Roles } from '../auth/enums/role.enum';
 import { throwIfEmpty } from 'rxjs';
 import { UpdateUserDto } from './dto/update.user.dto';
+import { Projects } from '../projects/entities/project.entity';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectRepository(User) private userRepository: Repository<User>,) { }
+        @InjectRepository(User) private userRepository: Repository<User>,
+        @InjectRepository(Projects) private projectRepository: Repository<Projects>
+    ) { }
 
     async getUserById(id: string, userId: string) {
 
@@ -49,7 +52,7 @@ export class UsersService {
         if (body.firstName) {
             user.firstName = body.firstName
         }
-        if (body.lastName) { 
+        if (body.lastName) {
             user.lastName = body.lastName
         }
         await this.userRepository.save(user);
@@ -60,4 +63,35 @@ export class UsersService {
         };
 
     }
+
+    async getUserCount(userId: string) {
+        const Employee = await this.projectRepository.find({
+            where: {
+                user: { id: userId },
+            },
+            relations: ['user', 'invite'],
+        });
+
+        if (!Employee || Employee.length === 0) {
+            throw new NotFoundException(`No projects found for user with ID ${userId}`);
+        }
+
+        return { EmployeeCount: Employee.length };
+    }
+
+    async getUsersByManager(userId: string) {
+        const Employee = await this.projectRepository.find({
+            where: {
+                user: { id: userId },
+            },
+            relations: ['user', 'invite'],
+        });
+
+        if (!Employee || Employee.length === 0) {
+            throw new NotFoundException(`No projects found for user with ID ${userId}`);
+        }
+
+        return { Employee };
+    }
+
 }

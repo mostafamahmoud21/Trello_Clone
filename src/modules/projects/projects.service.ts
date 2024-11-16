@@ -10,7 +10,8 @@ import { MailService } from '../mail.service';
 
 @Injectable()
 export class ProjectsService {
-    constructor(@InjectRepository(Projects) private projectRepository: Repository<Projects>,
+    constructor(
+        @InjectRepository(Projects) private projectRepository: Repository<Projects>,
         @InjectRepository(User) private userRepository: Repository<User>,
         private mailService: MailService
     ) { }
@@ -112,15 +113,15 @@ export class ProjectsService {
             throw new Error('User not found');
         }
         const joinLink = `${process.env.CLIENT_URL}/api/projects/Accept-Invite/${project.id}`; // Use env variable for the host
-    await this.mailService.sendMail(
-      user.email,
-      `Your Manager ${project.user.firstName} ${project.user.lastName} has invited you to join the project`,
-      `Click here to accept the invitation: ${joinLink}`,
-    );
-    return {message:"The invitation has been sent"}
+        await this.mailService.sendMail(
+            user.email,
+            `Your Manager ${project.user.firstName} ${project.user.lastName} has invited you to join the project`,
+            `Click here to accept the invitation: ${joinLink}`,
+        );
+        return { message: "The invitation has been sent" }
     }
 
-    async acceptInvite(id:string,userId:string){
+    async acceptInvite(id: string, userId: string) {
         const project = await this.projectRepository.findOne({
             where: { id },
             relations: ['user'],
@@ -130,9 +131,42 @@ export class ProjectsService {
             throw new NotFoundException('Project not found');
         }
         const user = await this.userRepository.findOne({ where: { id: userId } });
-        
-        project.invite=user
+
+        project.invite = user
         await this.projectRepository.save(project)
-        return {message:"You Are Join Success",project}
+        return { message: "You Are Join Success", project }
     }
+
+    async getAllProjects(userId: string) {
+        const projects = await this.projectRepository.find({
+            where: { user: { id: userId } },
+            relations: ['user'],
+        });
+
+        if (!projects.length) {
+            throw new NotFoundException('No projects found for this manager.');
+        }
+
+        return {
+            message: 'Projects retrieved successfully',
+            projects,
+        };
+    }
+
+    async getEmployeeProjects(userId: string) {
+        const projects = await this.projectRepository.find({
+            where: { invite: { id: userId } },
+            relations: ['invite'],
+        });
+
+        if (!projects.length) {
+            throw new NotFoundException('No projects found for this manager.');
+        }
+
+        return {
+            message: 'No projects found for this employee.',
+            projects,
+        };
+    }
+
 }

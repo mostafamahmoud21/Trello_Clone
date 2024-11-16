@@ -7,13 +7,15 @@ import { CreateTaskDto } from './dto/create.task.dto';
 import { ChangeStatusDto, UpdateTaskDto } from './dto/update.task.dto';
 import { AssignedTasksDto } from './dto/assigned.task.dto';
 import { User } from '../users/entities/user.entity';
+import { MailService } from '../mail.service';
 
 @Injectable()
 export class TasksService {
     constructor(
         @InjectRepository(Task) private taskRepository: Repository<Task>,
         @InjectRepository(Projects) private projectRepository: Repository<Projects>,
-        @InjectRepository(User) private userRepository: Repository<User>
+        @InjectRepository(User) private userRepository: Repository<User>,
+        private mailService: MailService
     ) { }
 
     async createTask(body: CreateTaskDto, userId: string, projectId: string) {
@@ -114,7 +116,12 @@ export class TasksService {
 
         await this.taskRepository.save(task);
 
-        return { message: 'Task assigned successfully', task };
+        const emailSubject = `Task Assigned: ${task.name}`;
+        const emailText = `Hello ${user.firstName},\n\nYou have been assigned a new task in the project "${project.name}".\n\nTask Details:\n- Task: ${task.name}\n- Project: ${project.name}\n\nPlease check your tasks and start working on it.\n\nBest regards,\nYour Team`;
+
+        await this.mailService.sendMail(user.email, emailSubject, emailText);
+
+        return { message: 'Task assigned successfully and email sent', task };
     }
 
     async getAssignedTasks(projectId: string, userId: string) {

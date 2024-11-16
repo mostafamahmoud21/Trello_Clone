@@ -19,20 +19,20 @@ export class ProjectsController {
   @Role(Roles.Manager)
   createNewProject(@Req() req: Request, @Body() body: CreateProjectDto) {
     const userId = (req.user as User).id
-    return this.projectsService.createNewProject(userId,body)
+    return this.projectsService.createNewProject(userId, body)
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(Roles.Manager)
-  getProjectById(@Req() req: Request,@Param('id') id:string){
+  getProjectById(@Req() req: Request, @Param('id') id: string) {
     const userId = (req.user as User).id
-    return this.projectsService.getProjectById(id,userId)
+    return this.projectsService.getProjectById(id, userId)
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Manager) 
+  @Role(Roles.Manager)
   async updateProject(
     @Param('id') id: string,
     @Req() req: Request,
@@ -44,7 +44,7 @@ export class ProjectsController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Manager) 
+  @Role(Roles.Manager)
   async deleteProject(@Param('id') id: string, @Req() req: Request) {
     const userId = (req.user as User).id;
     return this.projectsService.deleteProject(id, userId);
@@ -52,17 +52,34 @@ export class ProjectsController {
 
   @Post('invite/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Manager) 
-  inviteUser(@Param('id') id: string, @Req() req: Request,@Body() body:InviteUserProjectDto){
+  @Role(Roles.Manager)
+  inviteUser(@Param('id') id: string, @Req() req: Request, @Body() body: InviteUserProjectDto) {
     const userId = (req.user as User).id;
-    return this.projectsService.inviteUser(id, userId,body);
+    return this.projectsService.inviteUser(id, userId, body);
   }
 
   @Post('Accept-Invite/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.USER,Roles.Manager) 
-  acceptInvite(@Param('id') id: string, @Req() req: Request){
+  @Role(Roles.USER, Roles.Manager)
+  acceptInvite(@Param('id') id: string, @Req() req: Request) {
     const userId = (req.user as User).id;
     return this.projectsService.acceptInvite(id, userId);
   }
+
+  @Get('All-Projects')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Manager)
+  getAllProjects(@Req() req: Request) {
+    const userId = (req.user as User).id;
+    return this.projectsService.getAllProjects(userId);
+  }
+
+  @Get('employee')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Role(Roles.USER) 
+  async getEmployeeProjects(@Req() req: Request) {
+    const userId = (req.user as User).id; 
+    return this.projectsService.getEmployeeProjects(userId); 
+  }
+
 }

@@ -7,10 +7,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtStrategy } from '../auth/strategies/Jwt.Strategy';
 import { User } from '../users/entities/user.entity';
+import { MailService } from '../mail.service';
 
 @Module({
   imports:[TypeOrmModule.forFeature([Task,Projects,User])],
   controllers: [TasksController],
-  providers: [TasksService,JwtStrategy,JwtAuthGuard],
+  providers: [TasksService,JwtStrategy,JwtAuthGuard,MailService],
 })
 export class TasksModule {}
