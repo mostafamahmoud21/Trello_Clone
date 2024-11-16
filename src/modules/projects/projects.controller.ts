@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
 import { User } from '../auth/types/express';
 import { UpdateProjectDto } from './dto/Update.Project.Dto';
+import { InviteUserProjectDto } from './dto/Invite.user.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -47,5 +48,21 @@ export class ProjectsController {
   async deleteProject(@Param('id') id: string, @Req() req: Request) {
     const userId = (req.user as User).id;
     return this.projectsService.deleteProject(id, userId);
+  }
+
+  @Post('invite/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Manager) 
+  inviteUser(@Param('id') id: string, @Req() req: Request,@Body() body:InviteUserProjectDto){
+    const userId = (req.user as User).id;
+    return this.projectsService.inviteUser(id, userId,body);
+  }
+
+  @Post('Accept-Invite/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.USER,Roles.Manager) 
+  acceptInvite(@Param('id') id: string, @Req() req: Request){
+    const userId = (req.user as User).id;
+    return this.projectsService.acceptInvite(id, userId);
   }
 }

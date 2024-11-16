@@ -15,4 +15,7 @@ export class Projects {
 
     @ManyToOne(() => User, (user) => user.projects)
     user: User
+
+    @ManyToOne(() => User, (user) => user.projects)
+    invite: User
 }
