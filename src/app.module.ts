@@ -5,6 +5,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import * as path from 'path'
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,7 +23,8 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     UsersModule,
     ProjectsModule,
-    AuthModule,],
+    AuthModule,
+    TasksModule,],
   controllers: [],
   providers: [],
 })
